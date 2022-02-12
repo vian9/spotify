@@ -3,6 +3,7 @@ import styles from './Players.module.css';
 import Track from './track';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlay, faPause, faForward, faBackward } from '@fortawesome/free-solid-svg-icons'
+import Link from 'next/link'
 
 function Dashboard(props) {
   //new
@@ -89,26 +90,27 @@ function Dashboard(props) {
         <> 
         <audio ref={audioPlayer} src={props.songs[props.currentSongIndex].src}  preload="metadata"></audio>
         <div className={styles.tracks}>
-        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[props.currentSongIndex]} />
-        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[props.nextSongIndex]}/>
-        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[2]}/>
-        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[0]}/>
-        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[2]}/>
-        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[3]}/>
-        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[2]}/>
-        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[0]}/>
-        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[2]}/>
-        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[3]}/>
-        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[0]}/>
-        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[3]}/>
-        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[1]}/>
-        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[3]}/>
-        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[0]}/>
-        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[3]}/>       
+        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[props.currentSongIndex]} click={togglePlayPause}/>
+        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[props.nextSongIndex]} click={togglePlayPause}/>
+        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[2]} click={togglePlayPause}/>
+        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[0]} click={togglePlayPause}/>
+        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[2]} click={togglePlayPause}/>
+        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[3]} click={togglePlayPause}/>
+        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[2]} click={togglePlayPause}/>
+        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[0]} click={togglePlayPause}/>
+        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[2]} click={togglePlayPause}/>
+        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[3]} click={togglePlayPause}/>
+        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[0]} click={togglePlayPause}/>
+        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[3]} click={togglePlayPause}/>
+        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[1]} click={togglePlayPause}/>
+        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[3]} click={togglePlayPause}/>
+        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[0]} click={togglePlayPause}/>
+        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[3]} click={togglePlayPause}/>       
         </div>
         <div className={styles.cdplayer}>
         <div className={styles.cplayerdetails}>
-            <h3 className={styles.detailstitle}>{props.songs[props.currentSongIndex].title}</h3>
+        <Link href='/' passHref>
+            <h3 className={styles.detailstitle}>{props.songs[props.currentSongIndex].title}</h3></Link>
             <h4 className={styles.detailsartist}>{props.songs[props.currentSongIndex].artist}</h4>
         </div>
              {/* current time */}

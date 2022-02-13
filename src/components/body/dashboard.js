@@ -1,16 +1,20 @@
 import React, {useState, useRef, useEffect} from 'react'
 import styles from './Players.module.css';
 import Track from './track';
+import Player from '../Player/Player';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlay, faPause, faForward, faBackward } from '@fortawesome/free-solid-svg-icons'
 import Link from 'next/link'
+import FixFooter from "./FixFooter";
 
 function Dashboard(props) {
+
   //new
     // state
-    const [isPlaying, setIsPlaying] = useState(false);
+    const [isPlaying, setIsPlaying] = useState(true);
     const [duration, setDuration] = useState(0);
     const [currentTime, setCurrentTime] = useState(0);
+    const [trackIndex, setTrackIndex] = useState(-1);
   
     // references
     const audioPlayer = useRef();   // reference our audio component
@@ -29,6 +33,50 @@ function Dashboard(props) {
       const seconds = Math.floor(secs % 60);
       const returnedSeconds = seconds < 10 ? `0${seconds}` : `${seconds}`;
       return `${returnedMinutes}:${returnedSeconds}`;
+    }
+
+    const chapters = [
+      {
+        start: 0,
+        end: 15
+      },
+      {
+        start: 60,
+        end: 75
+      }
+    ]
+
+    useEffect(() => {
+      if (props.timeJump) {
+        timeTravel(props.timeJump);
+        setIsPlaying(true);
+        play();
+      } else {
+        timeTravel(0);
+      }
+    }, [props.timeJump]);
+
+    useEffect(() => {
+      if (currentTime == duration) {
+        togglePlayPause();
+        SkipSong()
+        timeTravel(0);
+      }
+    }, [currentTime]);
+
+
+    const onTrackSelect = (index) => {
+      setTrackIndex(index);
+    };
+
+    const play = () => {
+      audioPlayer.current.play();
+      animationRef.current = requestAnimationFrame(whilePlaying)
+    }
+
+    const timeTravel = (newTime) => {
+      progressBar.current.value = newTime;
+      changeRange();
     }
 
     const togglePlayPause = () => {
@@ -88,28 +136,29 @@ function Dashboard(props) {
 
     return (
         <> 
-        <audio ref={audioPlayer} src={props.songs[props.currentSongIndex].src}  preload="metadata"></audio>
         <div className={styles.tracks}>
-        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[props.currentSongIndex]} click={togglePlayPause}/>
-        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[props.nextSongIndex]} click={togglePlayPause}/>
-        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[2]} click={togglePlayPause}/>
-        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[0]} click={togglePlayPause}/>
-        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[2]} click={togglePlayPause}/>
-        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[3]} click={togglePlayPause}/>
-        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[2]} click={togglePlayPause}/>
-        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[0]} click={togglePlayPause}/>
-        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[2]} click={togglePlayPause}/>
-        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[3]} click={togglePlayPause}/>
-        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[0]} click={togglePlayPause}/>
-        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[3]} click={togglePlayPause}/>
-        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[1]} click={togglePlayPause}/>
-        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[3]} click={togglePlayPause}/>
-        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[0]} click={togglePlayPause}/>
-        <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[3]} click={togglePlayPause}/>       
+        <ul className="mtb-10">
+        {props.songs.length ? (
+          props.songs.map((item, index) => (
+            <li
+              onClick={() => onTrackSelect(index)}
+              key={index}
+              className="audio-ls-container"
+            > 
+            <audio ref={audioPlayer} src={props.songs[index].src}  preload="metadata"></audio>
+            <Track isPlaying={isPlaying} setIsPlaying={setIsPlaying} song={props.songs[index]} click={togglePlayPause}/>
+            </li>
+          ))
+        ) : (
+          <p style={{ textAlign: "center", fontSize: "16px" }}>
+            No Audio Available
+          </p>
+        )}
+      </ul>      
         </div>
         <div className={styles.cdplayer}>
         <div className={styles.cplayerdetails}>
-        <Link href='/' passHref>
+        <Link href="./" passHref>
             <h3 className={styles.detailstitle}>{props.songs[props.currentSongIndex].title}</h3></Link>
             <h4 className={styles.detailsartist}>{props.songs[props.currentSongIndex].artist}</h4>
         </div>
@@ -118,9 +167,23 @@ function Dashboard(props) {
          <div className={styles.currentTime}>{calculateTime(currentTime)}</div>
 
         {   /* progress bar */}
-        <div>
+        <div className={styles.progressBarWrapper}>
         <input type="range" className={styles.progressBar} defaultValue="0" ref={progressBar} onChange={changeRange} />
-        </div>
+        {chapters.map((chapter, i) => {
+          const leftStyle = chapter.start / duration * 100;
+          const widthStyle = (chapter.end - chapter.start) / duration * 100;
+          return (
+            <div
+              key={i}
+              className={`${styles.chapter} ${chapter.start == 0 && styles.start} ${chapter.end == duration && styles.end}`}
+              style={{
+                '--left': `${leftStyle}%`,
+                '--width': `${widthStyle}%`,
+              }}
+            ></div>
+          )
+        })}
+      </div>
 
         {/* duration */}
         <div className={styles.duration}>{(duration && !isNaN(duration)) && calculateTime(duration)}</div>
@@ -129,7 +192,7 @@ function Dashboard(props) {
             <button className={styles.skipbtn} onClick={() => SkipSong(false)}>
                 <FontAwesomeIcon icon={faBackward} />
             </button>
-            <button className={styles.playbtn} onClick={togglePlayPause}>
+            <button className={styles.playbtn} onClickCapture={togglePlayPause} onClick={() => onTrackSelect(index)}>
                 <FontAwesomeIcon icon={isPlaying ? faPause : faPlay } />
             </button>
             <button className={styles.skipbtn} onClick={() => SkipSong()}>
@@ -137,6 +200,14 @@ function Dashboard(props) {
             </button>
             </div>
         </div>
+        <FixFooter currentSongIndex={props.currentSongIndex} 
+        setCurrentSongIndex={props.setCurrentSongIndex} 
+        nextSongIndex={props.nextSongIndex} 
+        songs={props.songs}
+        timeJump={props.timeJump}
+        trackIndex={trackIndex} audioList={props.songs} 
+        currentTime={currentTime}
+        />
         </>
     )
 }

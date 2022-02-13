@@ -3,21 +3,52 @@ import styles from './Index.module.css';
 import Details from './Details';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlay, faPause, faForward, faBackward } from '@fortawesome/free-solid-svg-icons'
-import Slider from '@mui/material/Slider';
-
+import Link from 'next/link'
 
 function Player(props) {
+    
      //new
     // state
-    const [isPlaying, setIsPlaying] = useState(false);
+    const [isPlaying, setIsPlaying] = useState(true);
     const [duration, setDuration] = useState(0);
     const [currentTime, setCurrentTime] = useState(0);
-  
+    
+    const chapters = [
+        {
+          start: 0,
+          end: 15
+        },
+        {
+          start: 60,
+          end: 75
+        }
+      ]
+
     // references
     const audioPlayer = useRef();   // reference our audio component
     const progressBar = useRef();   // reference our progress bar
     const animationRef = useRef();  // reference the animation
   
+    useEffect(() => {
+        if (props.timeJump) {
+          timeTravel(props.timeJump);
+          setIsPlaying(true);
+          play();
+        } else {
+          timeTravel(0);
+        }
+      }, [props.timeJump]);
+
+      useEffect(() => {
+        if (currentTime == duration) {
+          togglePlayPause();
+          SkipSong()
+          timeTravel(0);
+        }
+      }, [currentTime]);
+
+
+
     useEffect(() => {
       const seconds = Math.floor(audioPlayer.current.duration);
       setDuration(seconds);
@@ -30,6 +61,11 @@ function Player(props) {
       const seconds = Math.floor(secs % 60);
       const returnedSeconds = seconds < 10 ? `0${seconds}` : `${seconds}`;
       return `${returnedMinutes}:${returnedSeconds}`;
+    }
+
+    const play = () => {
+      audioPlayer.current.play();
+      animationRef.current = requestAnimationFrame(whilePlaying)
     }
 
     const togglePlayPause = () => {
@@ -60,6 +96,12 @@ function Player(props) {
       setCurrentTime(progressBar.current.value);
     }
 
+
+  const timeTravel = (newTime) => {
+    progressBar.current.value = newTime;
+    changeRange();
+  }
+
     //forward backward
     const SkipSong = (forwards = true) => {
     if (forwards) {
@@ -88,6 +130,10 @@ function Player(props) {
 }
 
     return (
+        <div className={styles.minii}>
+            <Link href='/' passHref>
+            <FontAwesomeIcon  />
+            </Link>
         <div className={styles.cplayer}>
             <h4>Playing now</h4>
             <Details song={props.songs[props.currentSongIndex]} />
@@ -97,9 +143,23 @@ function Player(props) {
          <div className={styles.currentTime}>{calculateTime(currentTime)}</div>
 
         {   /* progress bar */}
-        <div>
+        <div className={styles.progressBarWrapper}>
         <input type="range" className={styles.progressBar} defaultValue="0" ref={progressBar} onChange={changeRange} />
-        </div>
+        {chapters.map((chapter, i) => {
+          const leftStyle = chapter.start / duration * 100;
+          const widthStyle = (chapter.end - chapter.start) / duration * 100;
+          return (
+            <div
+              key={i}
+              className={`${styles.chapter} ${chapter.start == 0 && styles.start} ${chapter.end == duration && styles.end}`}
+              style={{
+                '--left': `${leftStyle}%`,
+                '--width': `${widthStyle}%`,
+              }}
+            ></div>
+          )
+        })}
+      </div>
 
         {/* duration */}
         <div className={styles.duration}>{(duration && !isNaN(duration)) && calculateTime(duration)}</div>
@@ -108,7 +168,7 @@ function Player(props) {
             <button className={styles.skipbtn} onClick={() => SkipSong(false)}>
                 <FontAwesomeIcon icon={faBackward} />
             </button>
-            <button className={styles.playbtn} onClick={togglePlayPause}>
+            <button className={styles.playbtn} onClickCapture={togglePlayPause}>
                 <FontAwesomeIcon icon={isPlaying ? faPause : faPlay } />
             </button>
             <button className={styles.skipbtn} onClick={() => SkipSong()}>
@@ -116,6 +176,7 @@ function Player(props) {
             </button>
         </div>
             <p>Next up: <span>{props.songs[props.nextSongIndex].title} by {props.songs[props.nextSongIndex].artist}</span></p>
+        </div>
         </div>
     )
 }

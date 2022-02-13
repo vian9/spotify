@@ -1,5 +1,6 @@
 import Head from 'next/head'
 import Image from 'next/image'
+import { useRouter } from "next/router";
 import styles from '../src/components/Player/Index.module.css'
 import {useState, useEffect} from 'react';
 import Player from '../src/components/Player/Player';
@@ -8,7 +9,8 @@ import {songs} from '../src/components/songs'
 export default function Home() {
   const [currentSongIndex, setCurrentSongIndex] = useState(0);
   const [nextSongIndex, setNextSongIndex] = useState(0);
-
+  const router = useRouter();
+  const { t } = router.query;
   useEffect(() => {
     setNextSongIndex(() => {
       if (currentSongIndex + 1 > songs.length - 1) {
@@ -31,6 +33,7 @@ export default function Home() {
         setCurrentSongIndex={setCurrentSongIndex} 
         nextSongIndex={nextSongIndex} 
         songs={songs}
+        timeJump={t}
       />
     </div>
   )

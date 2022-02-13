@@ -1,5 +1,6 @@
 import Head from 'next/head'
 import Image from 'next/image'
+import { useRouter } from "next/router";
 import styles from '../src/components/body/Players.module.css'
 import React, {useState, useRef, useEffect} from 'react'
 import Dashboard from '../src/components/body/dashboard';
@@ -7,6 +8,8 @@ import {songs} from '../src/components/songs'
 
 export default function List() {
 
+      const router = useRouter();
+      const { t } = router.query;
       const [currentSongIndex, setCurrentSongIndex] = useState(0);
       const [nextSongIndex, setNextSongIndex] = useState(0);
 
@@ -32,6 +35,7 @@ export default function List() {
         setCurrentSongIndex={setCurrentSongIndex} 
         nextSongIndex={nextSongIndex} 
         songs={songs}
+        timeJump={t}
       />
     </div>
   )

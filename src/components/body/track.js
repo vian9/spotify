@@ -4,6 +4,7 @@ import styles from './Tracks.module.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlay, faPause } from '@fortawesome/free-solid-svg-icons'
 import { Link } from '@mui/material'
+import {audioPlayer} from './dashboard'
 
 export default function Track(props) {
     if (props.isPlaying) {
